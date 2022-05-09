@@ -1,0 +1,15 @@
+authors:
+- David Stanek (https://github.com/dstanek)
+
+namespace: dstanek
+name: software
+version: 0.5.0
+
+readme: README.md
+description: Easily install unpackaged executables
+license_file: LICENSE
+repository: https://github.com/dstanek/ansible.software
+homepage: https://github.com/dstanek/ansible.software
+issues: https://github.com/dstanek/ansible.software/issues
+
+tags: [dstanek]
