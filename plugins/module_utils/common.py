@@ -25,12 +25,6 @@ class SoftwareRequest:
         self.resolver = resolver
 
 
-class SoftwareException(Exception):
-    def __init__(self, msg, **context):
-        super().__init__(msg)
-        self.context = context
-
-
 class Software:
     def __init__(self, name, version=None):
         self.name = name

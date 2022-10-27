@@ -6,7 +6,12 @@ from ansible.module_utils.urls import fetch_url
 from ansible_collections.dstanek.software.plugins.module_utils import absent
 from ansible_collections.dstanek.software.plugins.module_utils import download
 from ansible_collections.dstanek.software.plugins.module_utils import latest
-from ansible_collections.dstanek.software.plugins.module_utils.common import SoftwareRequest, SoftwareException
+from ansible_collections.dstanek.software.plugins.module_utils.common import (
+    SoftwareRequest,
+)
+from ansible_collections.dstanek.software.plugins.module_utils.errors import (
+    SoftwareException,
+)
 
 
 MODULE_SPEC = dict(

@@ -1,4 +1,6 @@
-from .common import Software, SoftwareException, create_versioned_path
+from .common import Software, create_versioned_path
+from .errors import SoftwareException
+
 
 def run(params):
     software = Software.from_param(params.pop("name"))

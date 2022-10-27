@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from .common import SoftwareException
+from .errors import SoftwareException
 from . import download
 
 def run(sr, module):
