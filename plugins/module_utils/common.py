@@ -2,6 +2,7 @@ from pathlib import Path
 
 from .versioned_path import VersionedPath
 
+
 class AttrDict(dict):
     __getattr__ = dict.__getitem__
 
@@ -39,7 +40,6 @@ class Software:
 
 
 def create_versioned_path(dest: str, name: str):
-    print("dest =", dest, "  name =", name)
     dest = Path(dest)
     if dest.is_dir():
         return VersionedPath(dest / name)

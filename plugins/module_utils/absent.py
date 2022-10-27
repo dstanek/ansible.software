@@ -15,7 +15,15 @@ def run(params):
     if dest.exists():
         dest.remove()
         versioned_path = str(dest.target) if dest.target else None
-        return  True, {"path": str(dest), "versioned_path": versioned_path, "state": "absent"}
+        return True, {
+            "path": str(dest),
+            "versioned_path": versioned_path,
+            "state": "absent",
+        }
 
     versioned_path = str(dest.target) if dest.target else None
-    return  False, {"path": str(dest), "versioned_path": versioned_path, "state": "absent"}
+    return False, {
+        "path": str(dest),
+        "versioned_path": versioned_path,
+        "state": "absent",
+    }

@@ -20,7 +20,7 @@ class VersionedPath:
     def __str__(self):
         return str(self.path)
 
-    def relink(self, version:str, delete_old_target=True):
+    def relink(self, version: str, delete_old_target=True):
         new_target = self.path.parent / f"{self.path.stem}-{version}"
         if self.target and self.target != new_target and delete_old_target:
             self.target.resolve().unlink()

@@ -16,19 +16,16 @@ from ansible_collections.dstanek.software.plugins.module_utils.errors import (
 
 MODULE_SPEC = dict(
     name=dict(required=True, type="str"),
-
     dest=dict(required=True, type="path"),
     mode=dict(default=0o755, type="raw"),
     owner=dict(type="str"),
     group=dict(type="str"),
-
     release_type=dict(
         type="str",
         choices=["executable", "tarball"],
         default="executable",
     ),
     tarball_args=dict(type="dict", default={}),
-
     state=dict(
         type="str",
         choices=["absent", "present", "latest"],
@@ -80,5 +77,5 @@ def main():
     module.exit_json(changed=changed, **context)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

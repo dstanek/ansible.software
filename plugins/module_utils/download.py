@@ -1,6 +1,10 @@
+from pathlib import Path
+
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.urls import fetch_url
-from ansible_collections.dstanek.software.plugins.module_utils.versioned_path import Path, VersionedPath
+from ansible_collections.dstanek.software.plugins.module_utils.versioned_path import (
+    VersionedPath,
+)
 from .errors import SoftwareException
 
 
@@ -22,7 +26,6 @@ def executable(resolver, filename: str, module, dest: Path, version: str):
     # TODO: should add a check here so that we don't wipe out something
     #       we don't own, but YOLO.
 
-    print("X", dest.release_version(), version)
     if dest.release_version() == version:
         module.exit_json(changed=False, meta={"dest": str(dest), "version": version})
 
