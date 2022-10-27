@@ -116,33 +116,6 @@ def main():
 
     module.exit_json(changed=changed, **context)
 
-    if module.params["release_version"] != "latest":
-        module.fail_json(msg="Only the 'latest' release version is supported")
-
-    #print(module.params)
-    resolver = GithubVersionResolver(module)
-    try:
-        version = resolver.latest()
-    except Failure as e:
-        module.fail_json(meta=e.data)
-    print("x")
-
-    # TODO: validate this path
-    dest = Path(module.params["dest"]).expanduser()
-#    #if dest.is_dir():
-#    #    module.params["dest"] = str(dest / module.params["name"])
-#    dest = LinkedPath(module.params["dest"])
-#    # TODO: should add a check here so that we don't wipe out something
-#    #       we don't own, but YOLO.
-
-    if module.params["release_type"] == "executable":
-        changed, meta = download.executable(resolver, module, dest, version)
-    elif module.params["release_type"] == "tarball":
-        changed, meta = download.tarball(resolver, module, dest, version)
-    print("y")
-
-    module.exit_json(changed=True, meta=meta)
-
 
 if __name__ == '__main__':
     main()
