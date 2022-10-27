@@ -29,11 +29,10 @@ def executable(resolver, filename: str, module, dest: Path, version: str):
     if dest.release_version() == version:
         module.exit_json(changed=False, meta={"dest": str(dest), "version": version})
 
-    data = resolver.download(version)
-    dest.write_target(data, version)
-
     file_args = module.load_file_common_arguments(module.params)
-    dest.ensure_file_attrs(file_args["mode"], file_args["owner"], file_args["group"])
+
+    data = resolver.download(version)
+    dest.write_target(data, version, file_args)
     dest.relink(version)
     return True, {"dest": str(dest), "version": version}
 
@@ -68,7 +67,6 @@ def tarball(resolver, module: AnsibleModule, dest_dir: Path, version: str):
         dest = VersionedPath(dest_dir / file_spec["dest"])
         member = tf.getmember(file_spec["src"])
         filedata = tf.extractfile(member)
-        dest.write_target(filedata.read(), version)
-        dest.ensure_file_attrs(file_args["mode"], file_args["owner"], file_args["group"])
+        dest.write_target(filedata.read(), version, file_args)
         dest.relink(version)
     return True, {"dest": str(dest), "version": version}

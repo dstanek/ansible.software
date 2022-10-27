@@ -1,3 +1,5 @@
+from typing import Dict, Optional
+
 class EmptyPath:
     def __bool__(self):
         return False
@@ -32,27 +34,17 @@ class VersionedPath:
     def release_version(self):
         if not self.target:
             return None
-        return str(self.target)[len(str(self.path))+1:]
-        raise Exception(f"{self.target} {self.path}")
-        try:
-            return str(self.target).rsplit("-", 1)[-1]
-        except OSError:
-            """This is not a symlink"""
-        except AttributeError:
-            """The symlink isn't a versioned file"""
+        return str(self.target)[len(str(self.path)) + 1 :]
 
-    def ensure_file_attrs(self, mode: str = None, owner: str = None, group: str = None) -> None:
-        if mode:
-            self.target.chmod(mode)
-        if owner:
-            self.target.owner(owner)
-        if group:
-            self.target.group(group)
-
-    def write_target(self, data: bytes, version):
-        if not self.target:
-            self.target = self.path.parent / f"{self.path.stem}-{version}"
-        self.target.write_bytes(data)
+    def write_target(self, data: bytes, version, file_args: Dict[str, Optional[str]]):
+        new_target = self.path.parent / f"{self.path.stem}-{version}"
+        new_target.write_bytes(data)
+        if file_args["mode"]:
+            new_target.chmod(file_args["mode"])
+        if file_args["owner"]:
+            new_target.owner(file_args["owner"])
+        if file_args["group"]:
+            new_target.group(file_args["group"])
 
     def remove(self):
         if self.target.exists():
