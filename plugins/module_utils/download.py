@@ -13,8 +13,9 @@ def slurp(module: AnsibleModule, version: str, **extra_context) -> bytes:
     url = template.format(version=version, **module.params, **extra_context)
     response, info = fetch_url(module, url)
     if info["status"] != 200:
-        raise Exception(
-            {"msg": f"Failed to download executable: {url}"}
+        raise SoftwareException(
+            f"Failed to download executable: {url}",
+            details=info,
         )
     return response.read()
 

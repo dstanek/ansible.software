@@ -8,7 +8,7 @@ def run(sr, module):
     # TODO: validate this path
     dest = Path(module.params["dest"]).expanduser()
     if not dest.is_dir():
-        raise SoftwareException("dest must be a directory")
+        raise SoftwareException("dest must be a directory", path=dest)
 
     if module.params["release_type"] == "executable":
         changed, meta = download.executable(
