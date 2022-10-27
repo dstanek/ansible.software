@@ -68,8 +68,8 @@ def main():
         module.exit_json(changed=changed, **context)
 
     # Let's install something
-    sr = SoftwareRequest(module.params, resolver)
     try:
+        sr = SoftwareRequest(module.params, resolver)
         changed, context = latest.run(sr, module)
     except SoftwareException as e:
         module.fail_json(e, **e.context)
