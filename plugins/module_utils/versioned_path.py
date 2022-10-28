@@ -55,7 +55,7 @@ class VersionedPath:
     def remove(self):
         if self.target.exists():
             self.target.unlink()
-        if self.path.exists():
+        if self.path.exists() or self.path.is_symlink():
             self.path.unlink(missing_ok=True)
 
     def exists(self):
