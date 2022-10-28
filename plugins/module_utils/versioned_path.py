@@ -1,5 +1,7 @@
 from typing import Dict, Optional
 
+from .errors import SoftwareException
+
 class EmptyPath:
     def __bool__(self):
         return False
@@ -15,7 +17,11 @@ class VersionedPath:
     def __init__(self, path) -> None:
         self.path = path
         if self.path.is_symlink():
-            self.target = self.path.readlink()
+            self.target = self.path.resolve()
+        elif self.path.exists():
+            raise SoftwareException(
+                "Path exists; manual intervention required", path=str(path)
+            )
         else:
             self.target = EmptyPath()
 
