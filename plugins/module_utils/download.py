@@ -70,7 +70,8 @@ def tarball(resolver, module: AnsibleModule, dest_dir: Path, version: str):
     file_args = module.load_file_common_arguments(module.params)
     for file_spec in file_specs:
         dest = VersionedPath(dest_dir / file_spec["dest"])
-        member = tf.getmember(file_spec["src"])
+        filename = file_spec["src"].format(**module.params)
+        member = tf.getmember(filename)
         filedata = tf.extractfile(member)
         dest.write_target(filedata.read(), version, file_args)
         dest.relink(version)
