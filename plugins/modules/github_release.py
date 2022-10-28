@@ -111,7 +111,7 @@ def main():
         sr = SoftwareRequest(module.params, resolver)
         changed, context = latest.run(sr, module)
     except SoftwareException as e:
-        module.fail_json(e, **e.context)
+        module.fail_json(str(e), **e.context)
     except PermissionError as e:
         module.fail_json(
             e.strerror,
