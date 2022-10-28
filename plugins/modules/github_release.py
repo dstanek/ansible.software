@@ -65,7 +65,7 @@ class GithubVersionResolver:
         return info["location"].split("/")[-1]
 
     def download(self, version) -> bytes:
-        if self._module.params["github_args"]["url_filename_template"]:
+        if "url_filename_template" in self._module.params["github_args"]:
             template = self._module.params["github_args"]["url_filename_template"]
             url_filename = template.format(version=version, **self._module.params)
         else:
