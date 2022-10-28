@@ -27,7 +27,7 @@ def executable(resolver, filename: str, module, dest: Path, version: str):
     # TODO: should add a check here so that we don't wipe out something
     #       we don't own, but YOLO.
 
-    if dest.release_version() == version:
+    if dest.release_version() == version and dest.target.exists():
         module.exit_json(changed=False, meta={"dest": str(dest), "version": version})
 
     file_args = module.load_file_common_arguments(module.params)
@@ -56,8 +56,12 @@ def tarball(resolver, module: AnsibleModule, dest_dir: Path, version: str):
     ]
 
     # If all links are correct then don't do anything
-    if all(vp.release_version() == version for vp in versioned_paths):
-        module.exit_json(changed=False, meta={"dest": str(dest_dir), "version": version})
+    if all(
+        vp.release_version() == version and vp.target.exists() for vp in versioned_paths
+    ):
+        module.exit_json(
+            changed=False, meta={"dest": str(dest_dir), "version": version}
+        )
 
     data = resolver.download(version)
     tarball_data = io.BytesIO(data)
