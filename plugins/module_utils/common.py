@@ -1,5 +1,6 @@
 from pathlib import Path
 
+from .errors import SoftwareException
 from .versioned_path import VersionedPath
 
 
@@ -17,6 +18,9 @@ class SoftwareRequest:
         else:
             self.name = params.name
             self.version = None
+
+        if self.state == "latest" and self.version:
+            raise SoftwareException("Specify state:latest or (state:present and a specific version)")
 
         if self.state == "latest" or (self.state == "present" and not self.version):
             self.version = resolver.get_latest()
