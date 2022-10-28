@@ -24,7 +24,7 @@ GITHUB_ARGS_DEFAULT = dict(
 
 MODULE_SPEC = dict(
     name=dict(required=True, type="str"),
-    dest=dict(required=True, type="path"),
+    dest=dict(type="path", default="/usr/local/bin"),
     mode=dict(default=0o755, type="raw"),
     owner=dict(type="str"),
     group=dict(type="str"),
