@@ -36,11 +36,11 @@ class Software:
         self.version = version
 
     @classmethod
-    def from_param(cls, value):
+    def from_param(cls, name):
         """Create a Software instance from the name parameter."""
-        if "=" in value:
-            return cls(*value.split("="))
-        return cls(value)
+        if "=" in name:
+            return cls(*name.split("="))
+        return cls(name)
 
 
 def create_versioned_path(dest: str, name: str):

@@ -3,7 +3,7 @@ authors:
 
 namespace: dstanek
 name: software
-version: 0.5.0
+version: 0.5.4
 
 readme: README.md
 description: Easily install unpackaged executables

@@ -24,6 +24,7 @@ class VersionedPath:
             )
         else:
             self.target = EmptyPath()
+        # TODO: Maybe the if the path exists and isn't a symlink raise an exception.
 
     def __str__(self):
         return str(self.path)
@@ -60,3 +61,8 @@ class VersionedPath:
 
     def exists(self):
         return self.path.exists() or (self.target and self.target.exists())
+
+    def verify(self, expected_version: Optional[str]):
+        if expected_version and self.release_version() != expected_version:
+            return False
+        return self.path.exists() and self.target.exists()

@@ -2,6 +2,7 @@ from pathlib import Path
 
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.urls import fetch_url
+from ansible_collections.dstanek.software.plugins.module_utils import render
 from ansible_collections.dstanek.software.plugins.module_utils.versioned_path import (
     VersionedPath,
 )
@@ -14,7 +15,7 @@ def slurp(module: AnsibleModule, version: str, **extra_context) -> bytes:
     response, info = fetch_url(module, url)
     if info["status"] != 200:
         raise SoftwareException(
-            f"Failed to download executable: {url}",
+            f"Failed to download file: {url}",
             details=info,
         )
     return response.read()
@@ -66,11 +67,18 @@ def tarball(resolver, module: AnsibleModule, dest_dir: Path, version: str):
     data = resolver.download(version)
     tarball_data = io.BytesIO(data)
     tf = tarfile.open(fileobj=tarball_data, mode="r:gz")
+    #print(tf.getnames())
 
     file_args = module.load_file_common_arguments(module.params)
     for file_spec in file_specs:
         dest = VersionedPath(dest_dir / file_spec["dest"])
+
+        # New style substitution
+        filename = render.string(file_spec["src"], **module.params, version=version)
+
+        # TODO deprecate old style substitution
         filename = file_spec["src"].format(**module.params)
+
         member = tf.getmember(filename)
         filedata = tf.extractfile(member)
         dest.write_target(filedata.read(), version, file_args)

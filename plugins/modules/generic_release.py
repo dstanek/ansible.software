@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.urls import fetch_url
@@ -6,8 +6,9 @@ from ansible.module_utils.urls import fetch_url
 from ansible_collections.dstanek.software.plugins.module_utils import absent
 from ansible_collections.dstanek.software.plugins.module_utils import download
 from ansible_collections.dstanek.software.plugins.module_utils import latest
+from ansible_collections.dstanek.software.plugins.module_utils import present
 from ansible_collections.dstanek.software.plugins.module_utils.common import (
-    SoftwareRequest,
+    Software, SoftwareRequest,
 )
 from ansible_collections.dstanek.software.plugins.module_utils.errors import (
     SoftwareException,
@@ -58,19 +59,27 @@ def main():
     module = AnsibleModule(argument_spec=MODULE_SPEC)
     resolver = GenericResolver(module)
 
-    # Maybe we want to uninstall something?
-    if module.params["state"] == "absent":
-        try:
+    try:
+        # Maybe we want to uninstall something?
+        if module.params["state"] == "absent":
             changed, context = absent.run(module.params)
-        except SoftwareException as e:
-            module.fail_json(e, **e.context)
+
+        # Maybe we just want to see if *any* version is installed
+        elif module.params["state"] == "present":
+            sr = SoftwareRequest(module.params, resolver)
+            software = Software.from_param(module.params["name"])
+            changed, context = present.run(sr, module, software, resolver)
+
+        # Let's install the latest version
+        elif module.params["state"] == "latest":
+            sr = SoftwareRequest(module.params, resolver)
+            changed, context = latest.run(sr, module)
+
+        else:
+            raise Exception("what here?")  # TODO: do something here...
 
         module.exit_json(changed=changed, **context)
 
-    # Let's install something
-    try:
-        sr = SoftwareRequest(module.params, resolver)
-        changed, context = latest.run(sr, module)
     except SoftwareException as e:
         module.fail_json(str(e), **e.context)
     except PermissionError as e:
