@@ -3,7 +3,7 @@ authors:
 
 namespace: dstanek
 name: software
-version: 0.5.4
+version: 0.5.4-beta.1
 
 readme: README.md
 description: Easily install unpackaged executables
@@ -13,3 +13,5 @@ homepage: https://github.com/dstanek/ansible.software
 issues: https://github.com/dstanek/ansible.software/issues
 
 tags: [dstanek]
+build_ignore:
+  - builds

@@ -1,5 +1,147 @@
 #!/usr/bin/env python3
 
+DOCUMENTATION = r"""
+---
+module: dstanek.software.generic_release
+short_description: Download a software release
+description:
+  - "TODO: add some details"
+author: "David Stanek (@dstanek)"
+options:
+  name:
+    type: str
+    description:
+      - Executable name or executable name with version.
+      - Used to find the software to download and as the name of the file on disk.
+      - Can either be just a name like 'foo' or it can contain a version like 'foo==1.0.0'.
+    required: true
+    default: null
+
+  dest:
+    type: path
+    description:
+      - Remote absolute path where the file should be copied to.
+    default: "/usr/local/bin"
+
+  mode:
+    type: raw
+    description:
+      - The permissions of the destination file.
+      - For those used to C(/usr/bin/chmod) remember that modes are actually octal numbers.
+        You must either add a leading zero so that Ansible's YAML parser knows it is an octal
+        number (like C(0644) or C(01777)) or quote it (like C('644') or C('1777')) so Ansible
+        receives a string and can do its own conversion from string into number. Giving Ansible
+        a number without following one of these rules will end up with a decimal number which
+        will have unexpected results.
+      - As of Ansible 1.8, the mode may be specified as a symbolic mode (for example, C(u+rwx)
+        or C(u=rw,g=r,o=r)).
+    default: "755"
+
+  owner:
+    type: str
+    description:
+      - Name of the user that should own the destination file, as would be fed to chown.
+    required: true
+    default: null
+
+  group:
+    type: str
+    description:
+      - Name of the group that should own the destination file, as would be fed to chown.
+    default: null
+
+  release_type:
+    type: str
+    description:
+      - Specifies if the release is an executable or packaged in a tarball.
+    default: executable
+    choices:
+      - executable
+      - tarball
+
+  tarball_args:
+    type: dict
+    description:
+      - Options for dealing with a tarball release.
+      - C(files) is a list containing C({"src": ..., "dest": ...}) where C(src) is the path
+        in the tarball and C(dest) is the remote path to save the file.
+    default: null
+    suboptions:
+      files:
+        type: list
+        elements: dict
+
+  state:
+    type: str
+    description:
+      - Whether to install the latest (latest), install a specific version (present), or remove
+        (absent) software.
+      - `latest` will always try to get the latest version of software.
+      - `present` will install a specific version if specified, or will get the latest if not
+        already installed.
+    default: latest
+    choices:
+      - latest
+      - present
+      - absent
+
+  os_platform:
+    type: str
+    description:
+      - Currently only used for substitution.
+    default: linux
+    removed_in_version: 0.6.0
+
+  version_url_template:
+    type: str
+    description:
+      - A Jinja2 template for constructing the URL to check for
+        the current version.
+    required: true
+    default: null
+
+  download_url_template:
+    type: str
+    description:
+      - A Jinja2 template for constructing the URL to download a
+        specific version.
+    required: true
+    default: null
+
+notes: []
+requirements: []
+"""
+
+EXAMPLES = r"""
+- name: Install kubectl with hardcoded platform
+  dstanek.software.generic_release:
+    name: kubectl
+    dest: ~/.local/bin
+    version_url_template: https://dl.k8s.io/release/stable.txt
+    download_url_template: https://dl.k8s.io/release/{version}/bin/linux/amd64/kubectl
+
+- name: Install kubectl with variable platform
+  dstanek.software.generic_release:
+    name: kubectl
+    dest: ~/.local/bin
+    os_platform: "darwin"
+    version_url_template: https://dl.k8s.io/release/stable.txt
+    download_url_template: https://dl.k8s.io/release/{version}/bin/{os_platform}/amd64/kubectl
+"""
+
+RETURN = r"""
+dest:
+  description: Path of saved executable
+  type: path
+  returned: always
+  sample: /usr/local/bin/kubectl
+version:
+  description: Installed version
+  type: str
+  returned: always
+  sample: 0.5.4
+"""
+
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.urls import fetch_url
 
@@ -35,9 +177,10 @@ MODULE_SPEC = dict(
     os_platform=dict(
         type="str",
         default="linux",
+        removed_in_version="0.6.0",
     ),
     version_url_template=dict(type="str"),
-    download_url_template=dict(type="str"),
+    download_url_template=dict(type="str", required=True),
 )
 
 
