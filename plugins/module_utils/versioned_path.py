@@ -24,7 +24,6 @@ class VersionedPath:
             )
         else:
             self.target = EmptyPath()
-        # TODO: Maybe the if the path exists and isn't a symlink raise an exception.
 
     def __str__(self):
         return str(self.path)

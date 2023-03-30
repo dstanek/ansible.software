@@ -6,7 +6,6 @@ from . import download
 
 
 def run(sr, module, software, resolver):
-    # TODO: validate this path
     dest = Path(module.params["dest"]).expanduser()
     if not dest.is_dir():
         raise SoftwareException("dest must be a directory", path=dest)
