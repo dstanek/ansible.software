@@ -1,0 +1,43 @@
+- name: "Test Case : File server returns a 5XX error"
+  block:
+    - name: "Download Errors : A : Generate new software package name"
+      set_fact: {software_name: "{{ random_uuid }}"}
+
+    - name: "Download Errors : A : Install {{ software_name }} v1.0"
+      dstanek.software.generic_release:
+        name: "{{ software_name }}=v1.0"
+        state: present
+        dest: "{{ output_directory }}"
+        download_url_template: "http://localhost:8080/generic/download/{version}/{{ software_name }}/5XX"
+      register: failed_install
+      ignore_errors: yes
+
+    - name: "Download Errors : A : Assert installation failed properly"
+      assert:
+        that:
+          - failed_install.failed
+          - "failed_install.msg == 'Failed to download executable: ' + failed_install.details.url"
+
+- name: "Test Case : File server drops the connection"
+  block:
+    - name: "Download Errors : B : Generate new software package name"
+      set_fact: {software_name: "{{ random_uuid }}"}
+
+    - name: "Download Errors : B : Install {{ software_name }} v1.0"
+      dstanek.software.generic_release:
+        name: "{{ software_name }}=v1.0"
+        state: present
+        dest: "{{ output_directory }}"
+        download_url_template: "http://localhost:8080/generic/download/{version}/{{ software_name }}/drop_me"
+      register: failed_install
+      ignore_errors: yes
+
+    - name: "Download Errors : B : Assert installation failed properly"
+      assert:
+        that:
+          - failed_install.failed
+          - "failed_install.msg == 'Failed to download executable: ' + failed_install.details.url"
+
+
+
+# TODO(dstanek): don't break the system if a download fails

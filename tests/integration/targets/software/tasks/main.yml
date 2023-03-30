@@ -1,0 +1,39 @@
+- name: "Test run setup"
+  block:
+
+    - name: "Target Setup : Install required Python libraries"
+      ansible.builtin.pip:
+        name: aiohttp
+
+    - name: "Target Setup : Ensure the output directory exists"
+      ansible.builtin.file:
+        dest: "{{ output_directory }}"
+        state: directory
+
+    - name: "Target Setup : Copy fake server into container"
+      ansible.builtin.copy:
+        src: files/fake_server.py
+        dest: /usr/local/src/
+
+    - name: "Target Setup : Run the fake server in the background"
+      ansible.builtin.shell: "nohup python3 /usr/local/src/fake_server.py > /root/fake_server.log 2>&1 &"
+
+    - name: "Target Setup : Test the fake server"
+      ansible.builtin.uri:
+        method: HEAD
+        url: http://localhost:8080/generic/stable-version.txt
+      register: response
+
+    - name: "Target Setup : Ensure our test server is running"
+      ansible.builtin.assert:
+        that:
+          - "response.status == 200"
+
+- name: "Run test cases"
+  block:
+    - import_tasks: generic-happy-path.yml
+    - import_tasks: github-happy-path.yml
+    - import_tasks: errors-downloading.yml
+    - import_tasks: errors-permissions.yml
+    - import_tasks: errors-files.yml
+    - import_tasks: ui.yml

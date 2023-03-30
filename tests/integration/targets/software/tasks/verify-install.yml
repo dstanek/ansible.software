@@ -1,0 +1,29 @@
+- set_fact:
+    _target: "{{ output_directory }}/{{ software_name }}-{{ software_version }}"
+    _link: "{{ output_directory }}/{{ software_name }}"
+    _expected_contents: "<>{{ software_name }}@{{ software_version }}</>"
+
+- name: "{{ prefix }} : Get stat for target"
+  ansible.builtin.stat:
+    name: "{{ _target }}"
+  register: target_stat
+
+- name: "{{ prefix }} : Get target contents"
+  ansible.builtin.slurp:
+    src: "{{ _target }}"
+  register: target_slurp
+
+- name: "{{ prefix }} : Verify the target file's contents"
+  ansible.builtin.assert:
+    that: target_slurp.content | b64decode == _expected_contents
+
+- name: "{{ prefix }} : Get stat for link"
+  ansible.builtin.stat:
+    name: "{{ _link }}"
+  register: link_stat
+
+- name: "{{ prefix }} : Verify the link"
+  assert:
+    that:
+      - link_stat.stat.islnk
+      - link_stat.stat.lnk_target == _target

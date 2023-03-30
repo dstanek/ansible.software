@@ -1,0 +1,301 @@
+- name: "Test Case : Install a specific version when no version is installed"
+  block:
+    - name: "GitHub : A : Generate new software package name"
+      ansible.builtin.set_fact: {software_name: "{{ random_uuid }}"}
+
+    - name: "GitHub : A : Install {{ software_name }} v1.0"
+      dstanek.software.github_release:
+        name: "{{ software_name }}=v1.0"
+        state: present
+        github_args:
+          project: "dstanek/{{ software_name }}"
+
+        # TODO: configuration could be smarter
+        download_url_template: "http://localhost:8080/{github_args[project]}/releases/download/{version}/{url_filename}"
+        version_url_template: "http://localhost:8080/{github_args[project]}/releases/latest"
+
+    - name: "GitHub : A : Verify installation of {{ software_name }} v1.0"
+      ansible.builtin.include_tasks: verify-install.yml
+      vars:
+        prefix: "GitHub : A"
+        software_version: v1.0
+
+- name: "Test Case : Install a specific version when another version is installed"
+  block:
+    - name: "GitHub : B : Generate new software package name"
+      ansible.builtin.set_fact: {software_name: "{{ random_uuid }}"}
+
+    - name: "GitHub : B : Install {{ software_name }} v1.0"
+      dstanek.software.github_release:
+        name: "{{ software_name }}=v1.0"
+        state: present
+        download_url_template: "http://localhost:8080/{github_args[project]}/releases/download/{version}/{url_filename}"
+        version_url_template: "http://localhost:8080/{github_args[project]}/releases/latest"
+        github_args:
+          project: "dstanek/{{ software_name }}"
+
+    - name: "GitHub : B : Verify installation of {{ software_name }} v1.0"
+      include_tasks: verify-install.yml
+      vars:
+        prefix: "GitHub : B"
+        software_version: v1.0
+
+    - name: "GitHub : B : Install {{ software_name }} v2.0"
+      dstanek.software.github_release:
+        name: "{{ software_name }}=v2.0"
+        state: present
+        download_url_template: "http://localhost:8080/{github_args[project]}/releases/download/{version}/{url_filename}"
+        version_url_template: "http://localhost:8080/{github_args[project]}/releases/latest"
+        github_args:
+          project: "dstanek/{{ software_name }}"
+
+    - name: "GitHub : B : Verify installation of {{ software_name }} v1.0"
+      include_tasks: verify-install.yml
+      vars:
+        prefix: "GitHub : B"
+        software_version: v2.0
+
+- name: "Test Case : Install the latest version when no version is installed (latest)"
+  block:
+    - name: "GitHub : C : Generate new software package name"
+      set_fact: {software_name: "{{ random_uuid }}"}
+
+    - name: "GitHub : C : Install {{ software_name }}"
+      dstanek.software.github_release:
+        name: "{{ software_name }}"
+        download_url_template: "http://localhost:8080/{github_args[project]}/releases/download/{version}/{url_filename}"
+        version_url_template: "http://localhost:8080/{github_args[project]}/releases/latest"
+        github_args:
+          project: "dstanek/{{ software_name }}"
+
+    - name: "GitHub : C : Verify installation of {{ software_name }}"
+      include_tasks: verify-install.yml
+      vars:
+        prefix: "GitHub : C"
+        software_version: v2.0
+
+- name: "Test Case : Install the latest version when no version is installed (present)"
+  block:
+    - name: "GitHub : D : Generate new software package name"
+      set_fact: {software_name: "{{ random_uuid }}"}
+
+    - name: "GitHub : D : Install {{ software_name }}"
+      dstanek.software.github_release:
+        name: "{{ software_name }}"
+        state: present
+        download_url_template: "http://localhost:8080/{github_args[project]}/releases/download/{version}/{url_filename}"
+        version_url_template: "http://localhost:8080/{github_args[project]}/releases/latest"
+        github_args:
+          project: "dstanek/{{ software_name }}"
+
+    - name: "GitHub : D : Verify installation of {{ software_name }}"
+      include_tasks: verify-install.yml
+      vars:
+        prefix: "GitHub : D"
+        software_version: v2.0
+
+- name: "Test Case : Install the latest version when another version is installed (default latest)"
+  block:
+    - name: "GitHub : E : Generate new software package name"
+      ansible.builtin.set_fact: {software_name: "{{ random_uuid }}"}
+
+    - name: "GitHub : E : Install {{ software_name }} v1.0"
+      dstanek.software.github_release:
+        name: "{{ software_name }}=v1.0"
+        state: present
+        download_url_template: "http://localhost:8080/{github_args[project]}/releases/download/{version}/{url_filename}"
+        version_url_template: "http://localhost:8080/{github_args[project]}/releases/latest"
+        github_args:
+          project: "dstanek/{{ software_name }}"
+
+    - name: "GitHub : E : Verify installation of {{ software_name }} v1.0"
+      include_tasks: verify-install.yml
+      vars:
+        prefix: "GitHub : E"
+        software_version: v1.0
+
+    - name: "GitHub : E : Install {{ software_name }} v2.0"
+      dstanek.software.github_release:
+        name: "{{ software_name }}"
+        download_url_template: "http://localhost:8080/{github_args[project]}/releases/download/{version}/{url_filename}"
+        version_url_template: "http://localhost:8080/{github_args[project]}/releases/latest"
+        github_args:
+          project: "dstanek/{{ software_name }}"
+
+    - name: "GitHub : E : Verify installation of {{ software_name }} v2.0"
+      include_tasks: verify-install.yml
+      vars:
+        prefix: "GitHub : E"
+        software_version: v2.0
+
+- name: "Test Case : Install the latest version when another version is installed (latest)"
+  block:
+    - name: "GitHub : F : Generate new software package name"
+      ansible.builtin.set_fact: {software_name: "{{ random_uuid }}"}
+
+    - name: "GitHub : F : Install {{ software_name }} v1.0"
+      dstanek.software.github_release:
+        name: "{{ software_name }}=v1.0"
+        state: present
+        download_url_template: "http://localhost:8080/{github_args[project]}/releases/download/{version}/{url_filename}"
+        version_url_template: "http://localhost:8080/{github_args[project]}/releases/latest"
+        github_args:
+          project: "dstanek/{{ software_name }}"
+
+    - name: "GitHub : F : Verify installation of {{ software_name }} v1.0"
+      include_tasks: verify-install.yml
+      vars:
+        prefix: "GitHub : F"
+        software_version: v1.0
+
+    - name: "GitHub : F : Install {{ software_name }} v2.0"
+      dstanek.software.github_release:
+        name: "{{ software_name }}"
+        state: latest
+        download_url_template: "http://localhost:8080/{github_args[project]}/releases/download/{version}/{url_filename}"
+        version_url_template: "http://localhost:8080/{github_args[project]}/releases/latest"
+        github_args:
+          project: "dstanek/{{ software_name }}"
+
+    - name: "GitHub : F : Verify installation of {{ software_name }} v2.0"
+      include_tasks: verify-install.yml
+      vars:
+        prefix: "GitHub : F"
+        software_version: v2.0
+
+- name: "Test Case : Present does not install the latest if a version is already installed"
+  block:
+    - name: "GitHub : G : Generate new software package name"
+      ansible.builtin.set_fact: {software_name: "{{ random_uuid }}"}
+
+    - name: "GitHub : G : Install {{ software_name }} v1.0"
+      dstanek.software.github_release:
+        name: "{{ software_name }}=v1.0"
+        state: present
+        download_url_template: "http://localhost:8080/{github_args[project]}/releases/download/{version}/{url_filename}"
+        version_url_template: "http://localhost:8080/{github_args[project]}/releases/latest"
+        github_args:
+          project: "dstanek/{{ software_name }}"
+
+    - name: "GitHub : G : Verify installation of {{ software_name }} v1.0"
+      include_tasks: verify-install.yml
+      vars:
+        prefix: "GitHub : G"
+        software_version: v1.0
+
+    - name: "GitHub : G : Install {{ software_name }} again"
+      dstanek.software.github_release:
+        name: "{{ software_name }}"
+        state: present
+        download_url_template: "http://localhost:8080/{github_args[project]}/releases/download/{version}/{url_filename}"
+        version_url_template: "http://localhost:8080/{github_args[project]}/releases/latest"
+        github_args:
+          project: "dstanek/{{ software_name }}"
+
+    - name: "GitHub : G : Verify {{ software_name }} v1.0 is still installed"
+      include_tasks: verify-install.yml
+      vars:
+        prefix: "GitHub : G"
+        software_version: v1.0
+
+- name: "Test Case : Present will install the latest if no version is specified"
+  block:
+    - name: "GitHub : H : Generate new software package name"
+      ansible.builtin.set_fact: {software_name: "{{ random_uuid }}"}
+
+    - name: "GitHub : H : Install {{ software_name }}"
+      dstanek.software.github_release:
+        name: "{{ software_name }}"
+        state: latest
+        download_url_template: "http://localhost:8080/{github_args[project]}/releases/download/{version}/{url_filename}"
+        version_url_template: "http://localhost:8080/{github_args[project]}/releases/latest"
+        github_args:
+          project: "dstanek/{{ software_name }}"
+
+    - name: "GitHub : H : Verify {{ software_name }} v2.0 is installed"
+      include_tasks: verify-install.yml
+      vars:
+        prefix: "GitHub : H"
+        software_version: v2.0
+
+- name: "Test Case : Install when a broken symlink already exists"
+  block:
+    - name: "GitHub : I : Generate new software package name"
+      ansible.builtin.set_fact: {software_name: "{{ random_uuid }}"}
+
+    - name: "GitHub : I : Create a broken symlink"
+      ansible.builtin.file:
+        src: "{{ output_directory }}/{{ software_name }}-v2.0"
+        dest: "{{ output_directory }}/{{ software_name }}"
+        state: link
+        force: yes
+        follow: no
+        
+    - name: "GitHub : I : Install {{ software_name }} v2.0"
+      dstanek.software.github_release:
+        name: "{{ software_name }}"
+        state: latest
+        download_url_template: "http://localhost:8080/{github_args[project]}/releases/download/{version}/{url_filename}"
+        version_url_template: "http://localhost:8080/{github_args[project]}/releases/latest"
+        github_args:
+          project: "dstanek/{{ software_name }}"
+      register: installation
+
+    - name: "GitHub : I : Assert installation step changed"
+      assert:
+        that:
+          - installation.changed
+
+    - name: "GitHub : I : Verify installation of {{ software_name }} v2.0"
+      include_tasks: verify-install.yml
+      vars:
+        prefix: "GitHub : I"
+        software_version: v2.0
+
+- name: "Test Case : absent will remove an existing file"
+  block:
+    - name: "GitHub : J : Generate new software package name"
+      ansible.builtin.set_fact: {software_name: "{{ random_uuid }}"}
+
+    - name: "GitHub : J : Install latest {{ software_name }}"
+      dstanek.software.github_release:
+        name: "{{ software_name }}"
+        state: latest
+        github_args:
+          project: "dstanek/{{ software_name }}"
+        download_url_template: "http://localhost:8080/{github_args[project]}/releases/download/{version}/{url_filename}"
+        version_url_template: "http://localhost:8080/{github_args[project]}/releases/latest"
+
+    - name: "GitHub : J : Verify installation of {{ software_name }} v2.0"
+      include_tasks: verify-install.yml
+      vars:
+        prefix: "GitHub : J"
+        software_version: v2.0
+
+    - name: "GitHub : J : Remove {{ software_name }}"
+      dstanek.software.github_release:
+        name: "{{ software_name }}"
+        state: absent
+      register: removed
+
+    - name: "GitHub : J : Ensure that task has changed"
+      assert:
+        that: removed.changed
+
+    - name: "GitHub : J : Get target stat"
+      stat:
+        name: "{{ output_directory }}/{{ software_name }}-v2.0"
+      register: _target
+
+    - name: "GitHub : J : Ensure target has been deleted"
+      assert:
+        that: not _target.stat.exists
+
+    - name: "GitHub : J : Get link stat"
+      stat:
+        name: "{{ output_directory }}/{{ software_name }}"
+      register: _link
+
+    - name: "GitHub : J : Ensure link has been deleted"
+      assert:
+        that: not _link.stat.exists

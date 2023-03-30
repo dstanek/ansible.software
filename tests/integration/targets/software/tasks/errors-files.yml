@@ -1,0 +1,84 @@
+- name: "Test Case : File already exists"
+  block:
+    - name: "File Errors : Generate new software package name"
+      ansible.builtin.set_fact: {software_name: "{{ random_uuid }}"}
+
+    - name: "File Errors : Create a file with the name as the expected link"
+      file:
+        name: "/tmp/{{ software_name }}"
+        state: touch
+
+    - name: "File Errors : Install {{ software_name }} v1.0"
+      dstanek.software.generic_release:
+        name: "{{ software_name }}=v1.0"
+        state: present
+        dest: "/tmp/"
+        download_url_template: "http://localhost:8080/generic/download/{version}/{{ software_name }}"
+      register: failed_install
+      become: yes
+      become_user: "{{ test_user_name }}"
+      ignore_errors: yes
+
+    - name: "File Errors : Assert installation failed properly"
+      assert:
+        that:
+          - failed_install.failed
+          - "failed_install.msg == 'Path exists; manual intervention required'"
+          - "failed_install.path == '/tmp/' + software_name"
+
+- name: "Test Case : Directory does not exist"
+  block:
+    - name: "File Errors : Generate new software package name"
+      ansible.builtin.set_fact: {software_name: "{{ random_uuid }}"}
+
+    - name: "File Errors : Generate new test directory name"
+      ansible.builtin.set_fact: {test_dir_name: "{{ random_id }}"}
+
+    - name: "File Errors : Install {{ software_name }} v1.0"
+      dstanek.software.generic_release:
+        name: "{{ software_name }}=v1.0"
+        state: present
+        dest: "/tmp/{{ test_dir_name }}"
+        download_url_template: "http://localhost:8080/generic/download/{version}/{{ software_name }}"
+      register: failed_install
+      ignore_errors: yes
+
+    - name: "File Errors : Assert installation failed properly"
+      assert:
+        that:
+          - failed_install.failed
+          - "failed_install.msg == 'dest must be a directory'"
+          - "failed_install.path == '/tmp/' + test_dir_name"
+
+- name: "Test Case : Broken symlink already exists"
+  block:
+    - name: "File Errors : Generate new software package name"
+      ansible.builtin.set_fact: {software_name: "XYZ{{ random_uuid }}"}
+
+    - name: "File Errors : Create a broken symlink"
+      ansible.builtin.file:
+        src: "/tmp/{{ software_name }}-v2.0"
+        dest: "/tmp/{{ software_name }}"
+        state: link
+        force: yes
+        follow: no
+        
+    - name: "File Errors : Install {{ software_name }} v2.0"
+      dstanek.software.generic_release:
+        name: "{{ software_name }}"
+        state: present
+        dest: "/tmp/"
+        version_url_template: "http://localhost:8080/generic/stable-version.txt"
+        download_url_template: "http://localhost:8080/generic/download/{version}/{{ software_name }}"
+      register: failed_install
+      ignore_errors: yes
+      become: yes
+      become_user: "{{ test_user_name }}"
+
+    - debug: var=install_failed
+    - name: "File Errors : Assert installation failed properly"
+      assert:
+        that:
+          - failed_install.failed
+          - "failed_install.msg == 'Operation not permitted'"
+          - "failed_install.path == '/tmp/' + software_name"

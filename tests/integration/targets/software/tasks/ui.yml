@@ -1,0 +1,18 @@
+- name: Specifying latest and a version makes no sense"
+  block:
+    - name: "UI : Specifying latest and a version makes no sense"
+      dstanek.software.generic_release:
+        name: "{{ software_name }}=v1.0"
+        state: latest
+        dest: "/tmp/"
+        download_url_template: "http://localhost:8080/generic/download/{version}/{{ software_name }}"
+      register: failed_install
+      become: yes
+      become_user: "{{ test_user_name }}"
+      ignore_errors: yes
+
+    - name: "UI : Assert installation failed properly"
+      assert:
+        that:
+          - failed_install.failed
+          - "failed_install.msg == 'Specify state:latest or (state:present and a specific version)'"

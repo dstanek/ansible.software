@@ -1,0 +1,86 @@
+- name: "Test Case Setup"
+  block:
+    - name: "Permission Errors Setup : Generate user name"
+      ansible.builtin.set_fact: {test_user_name: "{{ random_uuid|split('-')|first }}"}
+
+    - name: "Permission Errors Setup : Create test user"
+      ansible.builtin.user:
+        name: "{{ test_user_name }}"
+
+    - name: "Permission Errors Setup : Add Python symlink for the test user"
+      file:
+        state: link
+        src: /usr/bin/python3
+        dest: /usr/bin/python
+
+- name: "Test Case : Directory is not readable"
+  block:
+    - name: "Permission Errors : Generate new software package name"
+      ansible.builtin.set_fact: {software_name: "{{ random_uuid }}"}
+
+    - name: "Permission Errors : Generate new test directory name"
+      ansible.builtin.set_fact: {test_dir_name: "{{ random_id }}"}
+
+    - name: "Permission Errors : Create a directory that {{ test_user_name }} can't r/w"
+      file:
+        name: "/tmp/{{ test_dir_name }}"
+        state: directory
+        mode: 0700
+
+    - name: "Permission Errors : Install {{ software_name }} v1.0"
+      dstanek.software.generic_release:
+        name: "{{ software_name }}=v1.0"
+        state: present
+        dest: "/tmp/{{ test_dir_name }}"
+        download_url_template: "http://localhost:8080/generic/download/{version}/{{ software_name }}"
+      register: failed_install
+      become: yes
+      become_user: "{{ test_user_name }}"
+      ignore_errors: yes
+
+    - name: "Permission Errors : Assert installation failed properly"
+      assert:
+        that:
+          - failed_install.failed
+          - "failed_install.msg == 'Permission denied'"
+          - failed_install.errno == 13
+          - "failed_install.path == '/tmp/' + test_dir_name + '/' + software_name"
+
+- name: "Test Case : Link is not writable"
+  block:
+    - name: "Permission Errors : Generate new software package name"
+      ansible.builtin.set_fact: {software_name: "{{ random_uuid }}"}
+
+    - name: "Permission Errors : Create a file that {{ test_user_name }} can't r/w"
+      file:
+        name: "/tmp/{{ software_name }}-x1.0"
+        state: touch
+        mode: 0700
+        force: yes
+
+    - name: "Permission Errors : Create a link that {{ test_user_name }} can't r/w"
+      file:
+        name: "/tmp/{{ software_name }}"
+        src: "/tmp/{{ software_name }}-x1.0"
+        state: link
+        mode: 0700
+        force: yes
+
+    - name: "Permission Errors : Install {{ software_name }} v1.0"
+      dstanek.software.generic_release:
+        name: "{{ software_name }}=v1.0"
+        state: present
+        dest: "/tmp/"
+        download_url_template: "http://localhost:8080/generic/download/{version}/{{ software_name }}"
+      register: failed_install
+      become: yes
+      become_user: "{{ test_user_name }}"
+      ignore_errors: yes
+
+    - name: "Permission Errors : Assert installation failed properly"
+      assert:
+        that:
+          - failed_install.failed
+          - "failed_install.msg == 'Operation not permitted'"
+          - failed_install.errno == 1
+          - "failed_install.path.startswith('/tmp/' + software_name)"

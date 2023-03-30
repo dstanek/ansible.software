@@ -1,0 +1,273 @@
+- name: "Test Case : Install a specific version when no version is installed"
+  block:
+    - name: "Generic : A : Generate new software package name"
+      ansible.builtin.set_fact: {software_name: "{{ random_uuid }}"}
+
+    - name: "Generic : A : Install {{ software_name }} v1.0"
+      dstanek.software.generic_release:
+        name: "{{ software_name }}=v1.0"
+        state: present
+        dest: "{{ output_directory }}"
+        download_url_template: "http://localhost:8080/generic/download/{version}/{{ software_name }}"
+
+    - name: "Generic : A : Verify installation of {{ software_name }} v1.0"
+      ansible.builtin.include_tasks: verify-install.yml
+      vars:
+        prefix: "Generic : A"
+        software_version: v1.0
+
+- name: "Test Case : Install a specific version when another version is installed"
+  block:
+    - name: "Generic : B : Generate new software package name"
+      ansible.builtin.set_fact: {software_name: "{{ random_uuid }}"}
+
+    - name: "Generic : B : Install {{ software_name }} v1.0"
+      dstanek.software.generic_release:
+        name: "{{ software_name }}=v1.0"
+        state: present
+        dest: "{{ output_directory }}"
+        download_url_template: "http://localhost:8080/generic/download/{version}/{{ software_name }}"
+
+    - name: "Generic : B : Verify installation of {{ software_name }} v1.0"
+      include_tasks: verify-install.yml
+      vars:
+        prefix: "Generic : B"
+        software_version: v1.0
+
+    - name: "Generic : B : Install {{ software_name }} v2.0"
+      dstanek.software.generic_release:
+        name: "{{ software_name }}=v2.0"
+        state: present
+        dest: "{{ output_directory }}"
+        download_url_template: "http://localhost:8080/generic/download/{version}/{{ software_name }}"
+
+    - name: "Generic : B : Verify installation of {{ software_name }} v1.0"
+      include_tasks: verify-install.yml
+      vars:
+        prefix: "Generic : B"
+        software_version: v2.0
+
+- name: "Test Case : Install the latest version when no version is installed (latest)"
+  block:
+    - name: "Generic : C : Generate new software package name"
+      set_fact: {software_name: "{{ random_uuid }}"}
+
+    - name: "Generic : C : Install {{ software_name }}"
+      dstanek.software.generic_release:
+        name: "{{ software_name }}"
+        dest: "{{ output_directory }}"
+        version_url_template: "http://localhost:8080/generic/stable-version.txt"
+        download_url_template: "http://localhost:8080/generic/download/{version}/{{ software_name }}"
+
+    - name: "Generic : C : Verify installation of {{ software_name }}"
+      include_tasks: verify-install.yml
+      vars:
+        prefix: "Generic : C"
+        software_version: v2.0
+
+- name: "Test Case : Install the latest version when no version is installed (present)"
+  block:
+    - name: "Generic : D : Generate new software package name"
+      set_fact: {software_name: "{{ random_uuid }}"}
+
+    - name: "Generic : D : Install {{ software_name }}"
+      dstanek.software.generic_release:
+        name: "{{ software_name }}"
+        dest: "{{ output_directory }}"
+        state: present
+        version_url_template: "http://localhost:8080/generic/stable-version.txt"
+        download_url_template: "http://localhost:8080/generic/download/{version}/{{ software_name }}"
+
+    - name: "Generic : D : Verify installation of {{ software_name }}"
+      include_tasks: verify-install.yml
+      vars:
+        prefix: "Generic : D"
+        software_version: v2.0
+
+- name: "Test Case : Install the latest version when another version is installed (default latest)"
+  block:
+    - name: "Generic : E : Generate new software package name"
+      ansible.builtin.set_fact: {software_name: "{{ random_uuid }}"}
+
+    - name: "Generic : E : Install {{ software_name }} v1.0"
+      dstanek.software.generic_release:
+        name: "{{ software_name }}=v1.0"
+        state: present
+        dest: "{{ output_directory }}"
+        download_url_template: "http://localhost:8080/generic/download/{version}/{{ software_name }}"
+
+    - name: "Generic : E : Verify installation of {{ software_name }} v1.0"
+      include_tasks: verify-install.yml
+      vars:
+        prefix: "Generic : E"
+        software_version: v1.0
+
+    - name: "Generic : E : Install {{ software_name }} v2.0"
+      dstanek.software.generic_release:
+        name: "{{ software_name }}"
+        dest: "{{ output_directory }}"
+        version_url_template: "http://localhost:8080/generic/stable-version.txt"
+        download_url_template: "http://localhost:8080/generic/download/{version}/{{ software_name }}"
+
+    - name: "Generic : E : Verify installation of {{ software_name }} v2.0"
+      include_tasks: verify-install.yml
+      vars:
+        prefix: "Generic : E"
+        software_version: v2.0
+
+- name: "Test Case : Install the latest version when another version is installed (latest)"
+  block:
+    - name: "Generic : F : Generate new software package name"
+      ansible.builtin.set_fact: {software_name: "{{ random_uuid }}"}
+
+    - name: "Generic : F : Install {{ software_name }} v1.0"
+      dstanek.software.generic_release:
+        name: "{{ software_name }}=v1.0"
+        state: present
+        dest: "{{ output_directory }}"
+        download_url_template: "http://localhost:8080/generic/download/{version}/{{ software_name }}"
+
+    - name: "Generic : F : Verify installation of {{ software_name }} v1.0"
+      include_tasks: verify-install.yml
+      vars:
+        prefix: "Generic : F"
+        software_version: v1.0
+
+    - name: "Generic : F : Install {{ software_name }} v2.0"
+      dstanek.software.generic_release:
+        name: "{{ software_name }}"
+        dest: "{{ output_directory }}"
+        state: latest
+        version_url_template: "http://localhost:8080/generic/stable-version.txt"
+        download_url_template: "http://localhost:8080/generic/download/{version}/{{ software_name }}"
+
+    - name: "Generic : F : Verify installation of {{ software_name }} v2.0"
+      include_tasks: verify-install.yml
+      vars:
+        prefix: "Generic : F"
+        software_version: v2.0
+
+- name: "Test Case : Present does not install the latest if a version is already installed"
+  block:
+    - name: "Generic : G : Generate new software package name"
+      ansible.builtin.set_fact: {software_name: "{{ random_uuid }}"}
+
+    - name: "Generic : G : Install {{ software_name }} v1.0"
+      dstanek.software.generic_release:
+        name: "{{ software_name }}=v1.0"
+        state: present
+        dest: "{{ output_directory }}"
+        download_url_template: "http://localhost:8080/generic/download/{version}/{{ software_name }}"
+
+    - name: "Generic : G : Verify installation of {{ software_name }} v1.0"
+      include_tasks: verify-install.yml
+      vars:
+        prefix: "Generic : G"
+        software_version: v1.0
+
+    - name: "Generic : G : Install {{ software_name }} again"
+      dstanek.software.generic_release:
+        name: "{{ software_name }}"
+        dest: "{{ output_directory }}"
+        state: present
+        version_url_template: "http://localhost:8080/generic/stable-version.txt"
+        download_url_template: "http://localhost:8080/generic/download/{version}/{{ software_name }}"
+
+    - name: "Generic : G : Verify {{ software_name }} v1.0 is still installed"
+      include_tasks: verify-install.yml
+      vars:
+        prefix: "Generic : G"
+        software_version: v1.0
+
+- name: "Test Case : Present will install the latest if no version is specified"
+  block:
+    - name: "Generic : H : Generate new software package name"
+      ansible.builtin.set_fact: {software_name: "{{ random_uuid }}"}
+
+    - name: "Generic : H : Install {{ software_name }}"
+      dstanek.software.generic_release:
+        name: "{{ software_name }}"
+        dest: "{{ output_directory }}"
+        state: present
+        version_url_template: "http://localhost:8080/generic/stable-version.txt"
+        download_url_template: "http://localhost:8080/generic/download/{version}/{{ software_name }}"
+
+    - name: "Generic : H : Verify {{ software_name }} v2.0 is installed"
+      include_tasks: verify-install.yml
+      vars:
+        prefix: "Generic : H"
+        software_version: v2.0
+
+- name: "Test Case : Install when a broken symlink already exists"
+  block:
+    - name: "Generic : I : Generate new software package name"
+      ansible.builtin.set_fact: {software_name: "{{ random_uuid }}"}
+
+    - name: "Generic : I : Create a broken symlink"
+      ansible.builtin.file:
+        src: "{{ output_directory }}/{{ software_name }}-v2.0"
+        dest: "{{ output_directory }}/{{ software_name }}"
+        state: link
+        force: yes
+        follow: no
+        
+    - name: "Generic : I : Install {{ software_name }} v2.0"
+      dstanek.software.generic_release:
+        name: "{{ software_name }}"
+        state: present
+        dest: "{{ output_directory }}"
+        version_url_template: "http://localhost:8080/generic/stable-version.txt"
+        download_url_template: "http://localhost:8080/generic/download/{version}/{{ software_name }}"
+      register: installation
+
+    - name: "Generic : I : Assert installation step changed"
+      assert:
+        that:
+          - installation.changed
+
+    - name: "Generic : I : Verify installation of {{ software_name }} v2.0"
+      include_tasks: verify-install.yml
+      vars:
+        prefix: "Generic : I"
+        software_version: v2.0
+
+- name: "Test Case : absent will remove an existing file"
+  block:
+    - name: "Generic : J : Generate new software package name"
+      ansible.builtin.set_fact: {software_name: "{{ random_uuid }}"}
+
+    - name: "Generic : J : Install latest {{ software_name }}"
+      dstanek.software.generic_release:
+        name: "{{ software_name }}"
+        dest: "{{ output_directory }}"
+        state: latest
+        version_url_template: "http://localhost:8080/generic/stable-version.txt"
+        download_url_template: "http://localhost:8080/generic/download/{version}/{{ software_name }}"
+
+    - name: "Generic : J : Remove {{ software_name }}"
+      dstanek.software.generic_release:
+        name: "{{ software_name }}"
+        dest: "{{ output_directory }}"
+        state: absent
+      register: _it
+    - debug: var=_it
+
+    - name: "Generic : J : Get target stat"
+      stat:
+        name: "{{ output_directory }}/{{ software_name }}-v2.0"
+      register: _target
+    - debug: var=_target
+
+    - name: "Generic : J : Ensure target has been deleted"
+      assert:
+        that: not _target.stat.exists
+
+    - name: "Generic : J : Get link stat"
+      stat:
+        name: "{{ output_directory }}/{{ software_name }}"
+      register: _link
+    - debug: var=_link
+
+    - name: "Generic : J : Ensure link has been deleted"
+      assert:
+        that: not _link.stat.exists
