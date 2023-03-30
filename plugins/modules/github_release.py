@@ -63,7 +63,7 @@ options:
     type: dict
     description:
       - Options for dealing with a tarball release.
-      - C(files) is a list containing C({"src": ..., "dest": ...}) where C(src) is the path
+      - C(files) is a list containing a dictionary where C(src) is the path
         in the tarball and C(dest) is the remote path to save the file.
     default: null
     suboptions:
@@ -78,9 +78,9 @@ options:
     description:
       - Whether to install the latest (latest), install a specific version (present), or remove
         (absent) software.
-      - `latest` will always try to get the latest version of software.
-      - `present` will install a specific version if specified, or will get the latest if not
-        already installed.
+      - "`latest` will always try to get the latest version of software."
+      - "`present` will install a specific version if specified, or will get the latest if not
+        already installed."
     default: latest
     choices:
       - latest

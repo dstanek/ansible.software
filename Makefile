@@ -1,5 +1,6 @@
 DOCKER_IMAGE=custom-ansible-test
 PYTHON_VERSION=3.8
+OUTPUT_PATH=builds/
 
 test-image:
 	docker build -t custom-ansible-test .
@@ -14,4 +15,9 @@ integration-debug:
 		--docker-terminate never
 
 build:
-	ansible-galaxy collection build
+	ansible-galaxy collection build --output-path $(OUTPUT_PATH)
+
+docs:
+	ansible-doc --type module --json \
+		dstanek.software.generic_release \
+		dstanek.software.github_release
